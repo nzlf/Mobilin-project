@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/login_page.dart'; // ✅ pastikan ini sesuai dengan path file kamu
+import 'screens/splash_screen.dart'; // ✅ pastikan path ini sesuai dengan struktur folder kamu
 
 void main() {
   runApp(const MobilinApp());
@@ -12,7 +12,7 @@ class MobilinApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(), // ✅ ganti ke LoginPage agar login muncul saat awal
+      home: SplashScreen(), // ✅ ganti ke SplashScreen dulu
     );
   }
 }

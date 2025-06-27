@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/screens/home_page.dart' as home;
 import 'package:flutter_application_1/screens/profile_page.dart' as profile;
 
+
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
