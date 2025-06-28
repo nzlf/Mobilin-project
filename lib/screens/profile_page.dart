@@ -68,7 +68,7 @@ class ProfilePage extends StatelessWidget {
                 children: [
                   const CircleAvatar(
                     radius: 30,
-                    backgroundImage: AssetImage('assets/profile.jpg'), // sesuaikan
+                    backgroundImage: AssetImage('assets/profile.jpg'),
                   ),
                   const SizedBox(width: 12),
                   const Expanded(
@@ -160,14 +160,6 @@ class ProfilePage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.car_rental), label: 'Pesanan'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
       ),
     );
   }

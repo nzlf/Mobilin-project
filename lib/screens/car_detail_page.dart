@@ -29,15 +29,25 @@ class _CarDetailPageState extends State<CarDetailPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RichText(
-                  text: const TextSpan(
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
-                    children: [
-                      TextSpan(text: 'Mob'),
-                      WidgetSpan(child: Icon(Icons.circle, color: Colors.lightBlue, size: 20)),
-                      TextSpan(text: 'ilin'),
-                    ],
-                  ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.black),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    RichText(
+                      text: const TextSpan(
+                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
+                        children: [
+                          TextSpan(text: 'Mob'),
+                          WidgetSpan(child: Icon(Icons.circle, color: Colors.lightBlue, size: 20)),
+                          TextSpan(text: 'ilin'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 Stack(
                   children: [

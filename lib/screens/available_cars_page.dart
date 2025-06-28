@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'car_detail_page.dart'; // Pastikan file ini ada
+import 'car_detail_page.dart';
+import 'package:flutter_application_1/screens/home_page.dart'; // Impor HomePage
 
 class AvailableCarsPage extends StatelessWidget {
   const AvailableCarsPage({super.key});
@@ -48,15 +49,28 @@ class AvailableCarsPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
-                    children: [
-                      const TextSpan(text: 'M'),
-                      WidgetSpan(child: Icon(Icons.circle, color: Colors.lightBlue, size: 40)),
-                      const TextSpan(text: 'bilin'),
-                    ],
-                  ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.black),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const HomePage()),
+                        );
+                      },
+                    ),
+                    RichText(
+                      text: TextSpan(
+                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
+                        children: [
+                          const TextSpan(text: 'M'),
+                          WidgetSpan(child: Icon(Icons.circle, color: Colors.lightBlue, size: 35)),
+                          const TextSpan(text: 'bilin'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 Stack(
                   children: [
