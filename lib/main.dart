@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart'; // ✅ pastikan path ini sesuai dengan struktur folder kamu
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'screens/splash_screen.dart';
+import 'screens/login_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const MobilinApp());
 }
 
@@ -10,9 +16,13 @@ class MobilinApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(), // ✅ ganti ke SplashScreen dulu
+      theme: ThemeData.light(),
+      home: const SplashScreen(),
+      routes: {
+        '/login': (context) => const LoginPage(),
+      },
     );
   }
 }

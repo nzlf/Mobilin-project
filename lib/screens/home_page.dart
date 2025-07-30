@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/screens/available_cars_page.dart'; // pastikan path ini sesuai
+import 'package:flutter_application_1/screens/available_cars_page.dart';
+import 'package:flutter_application_1/screens/car_detail_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -16,21 +17,9 @@ class HomePage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RichText(
-                  text: const TextSpan(
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                    children: [
-                      TextSpan(text: 'Mob'),
-                      WidgetSpan(
-                        child: Icon(Icons.circle, color: Colors.lightBlue, size: 20),
-                      ),
-                      TextSpan(text: 'ilin'),
-                    ],
-                  ),
+                Image.asset(
+                  'assets/mobilin.png',
+                  height: 40,
                 ),
                 Stack(
                   children: [
@@ -113,7 +102,10 @@ class HomePage extends StatelessWidget {
                           ),
                         );
                       },
-                      child: const Text('Cari Mobil'),
+                      child: const Text(
+                        'Cari Mobil',
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
                   ),
                 ],
@@ -143,14 +135,14 @@ class HomePage extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 10),
-            _buildCarRecommendationCard(),
+            _buildCarRecommendationCard(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCarRecommendationCard() {
+  Widget _buildCarRecommendationCard(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
@@ -166,53 +158,86 @@ class HomePage extends StatelessWidget {
               ],
             ),
           ),
-          Image.asset('assets/brio.png'), // pastikan file tersedia
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            child: Image.asset('assets/brio.png', width: double.infinity, fit: BoxFit.cover),
+          ),
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Honda',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-                const Text(
-                  'Brio Satya',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
+                const Text('Honda', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                const Text('Brio Satya', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 4,
                   children: const [
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.event_seat, size: 16),
                         SizedBox(width: 4),
                         Text('4 Seat'),
-                        SizedBox(width: 12),
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         Icon(Icons.settings, size: 16),
                         SizedBox(width: 4),
                         Text('Matic'),
-                        SizedBox(width: 12),
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         Icon(Icons.local_gas_station, size: 16),
                         SizedBox(width: 4),
                         Text('Petrol 69'),
                       ],
                     ),
-                    Text(
-                      'Rp200.000/hari',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    child: const Text('Pesan Sekarang'),
-                  ),
-                )
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Rp200.000/hari',
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CarDetailPage(
+                              car: {
+                                'image': 'assets/brio.png',
+                                'brand': 'Honda',
+                                'name': 'Brio Satya',
+                                'price': 'Rp200.000/hari',
+                                'transmission': 'Matic',
+                                'seat': '4',
+                                'type': 'Hatchback',
+                                'fuel': 'Petrol 69',
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.lightBlue,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      ),
+                      child: const Text('Pesan Sekarang'),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

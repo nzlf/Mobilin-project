@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_application_1/screens/payment_page.dart';
 
 class RentalFormPage extends StatefulWidget {
   final Map<String, dynamic> car;
@@ -12,7 +15,6 @@ class RentalFormPage extends StatefulWidget {
 class _RentalFormPageState extends State<RentalFormPage> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -22,12 +24,12 @@ class _RentalFormPageState extends State<RentalFormPage> {
   final TextEditingController pickupLocationController = TextEditingController();
   final TextEditingController guaranteeController = TextEditingController();
   final TextEditingController paymentMethodController = TextEditingController();
+  final TextEditingController startDateController = TextEditingController();
+  final TextEditingController endDateController = TextEditingController();
 
-  // Tanggal sewa
   DateTime? startDate;
   DateTime? endDate;
 
-  // Fungsi memilih tanggal
   Future<void> _selectDate(BuildContext context, bool isStart) async {
     final picked = await showDatePicker(
       context: context,
@@ -39,26 +41,26 @@ class _RentalFormPageState extends State<RentalFormPage> {
       setState(() {
         if (isStart) {
           startDate = picked;
+          startDateController.text = "${picked.day} ${_monthName(picked.month)} ${picked.year}";
         } else {
           endDate = picked;
+          endDateController.text = "${picked.day} ${_monthName(picked.month)} ${picked.year}";
         }
       });
     }
   }
 
-  // Fungsi konversi harga string ke int
   int _parseHarga(String priceString) {
     final angka = priceString.replaceAll(RegExp(r'[^0-9]'), '');
     return int.tryParse(angka) ?? 0;
   }
 
-  // Fungsi format rupiah
   String _formatRupiah(int amount) {
-    final s = amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.');
+    final s = amount.toString().replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.');
     return 'Rp$s';
   }
 
-  // Hitung jumlah hari
   int _getJumlahHari() {
     if (startDate != null && endDate != null) {
       return endDate!.difference(startDate!).inDays + 1;
@@ -66,11 +68,64 @@ class _RentalFormPageState extends State<RentalFormPage> {
     return 0;
   }
 
-  // Hitung total harga
   int _getTotalHarga() {
     int jumlahHari = _getJumlahHari();
     int hargaPerHari = _parseHarga(widget.car['price']);
     return jumlahHari * hargaPerHari;
+  }
+
+  Future<void> _submitRental() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Silakan login terlebih dahulu.')),
+      );
+      return;
+    }
+
+    try {
+      final rentalData = {
+        'userId': user.uid,
+        'carId': widget.car['id'] ?? 'unknown',
+        'carName': widget.car['name'] ?? '',
+        'startDate': startDate?.toIso8601String(),
+        'endDate': endDate?.toIso8601String(),
+        'totalPrice': _getTotalHarga(),
+        'createdAt': Timestamp.now(),
+        'firstName': firstNameController.text.trim(),
+        'lastName': lastNameController.text.trim(),
+        'email': emailController.text.trim(),
+        'ktp': ktpController.text.trim(),
+        'phone': phoneController.text.trim(),
+        'address': addressController.text.trim(),
+        'pickupLocation': pickupLocationController.text.trim(),
+        'guarantee': guaranteeController.text.trim(),
+      };
+
+      await FirebaseFirestore.instance.collection('rentals').add(rentalData);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Penyewaan berhasil disimpan!')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PaymentPage(total: _getTotalHarga()),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menyimpan data: $e')),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    startDateController.dispose();
+    endDateController.dispose();
+    super.dispose();
   }
 
   @override
@@ -87,32 +142,17 @@ class _RentalFormPageState extends State<RentalFormPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
+                // 🔙 Tombol Back + Logo
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    RichText(
-                      text: const TextSpan(
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
-                        children: [
-                          TextSpan(text: 'Mob'),
-                          WidgetSpan(child: Icon(Icons.circle, color: Colors.lightBlue, size: 16)),
-                          TextSpan(text: 'ilin'),
-                        ],
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () => Navigator.pop(context),
                     ),
-                    Stack(
-                      children: [
-                        const Icon(Icons.notifications_none, size: 28),
-                        Positioned(
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(3),
-                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                            child: const Text('6', style: TextStyle(fontSize: 10, color: Colors.white)),
-                          ),
-                        ),
-                      ],
+                    const SizedBox(width: 8),
+                    Image.asset(
+                      'assets/mobilin.png',
+                      height: 40,
                     ),
                   ],
                 ),
@@ -120,7 +160,6 @@ class _RentalFormPageState extends State<RentalFormPage> {
                 const Text('Formulir Sewa Mobil', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
 
-                // Form Input
                 Row(
                   children: [
                     Expanded(child: _buildTextField('Nama Awal *', firstNameController)),
@@ -135,21 +174,20 @@ class _RentalFormPageState extends State<RentalFormPage> {
 
                 const SizedBox(height: 16),
 
-                // Tanggal
                 Row(
                   children: [
                     Expanded(
-                      child: _buildDateField(
+                      child: _buildDateFieldWithController(
                         label: 'Tgl Sewa *',
-                        selectedDate: startDate,
+                        controller: startDateController,
                         onTap: () => _selectDate(context, true),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: _buildDateField(
+                      child: _buildDateFieldWithController(
                         label: 'Tgl Kembali *',
-                        selectedDate: endDate,
+                        controller: endDateController,
                         onTap: () => _selectDate(context, false),
                       ),
                     ),
@@ -159,7 +197,6 @@ class _RentalFormPageState extends State<RentalFormPage> {
                 _buildReadOnlyField('Jenis Mobil', car['name']),
                 _buildTextField('Lokasi Ambil *', pickupLocationController),
                 _buildTextField('Jaminan *', guaranteeController),
-                _buildTextField('Metode Pembayaran *', paymentMethodController),
 
                 if (startDate != null && endDate != null) ...[
                   _buildReadOnlyField('Durasi Sewa', '${_getJumlahHari()} hari'),
@@ -172,27 +209,26 @@ class _RentalFormPageState extends State<RentalFormPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Pesanan berhasil dikirim!')),
-                        );
+                        if (startDate == null || endDate == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Pilih tanggal sewa dan kembali terlebih dahulu.')),
+                          );
+                          return;
+                        }
+                        _submitRental();
                       }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.lightBlue),
-                    child: const Text('Bayar Sekarang'),
+                    child: const Text(
+                      'Pesan Sekarang',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
-                )
+                ),
               ],
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.car_rental), label: 'Pesanan'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
       ),
     );
   }
@@ -230,14 +266,15 @@ class _RentalFormPageState extends State<RentalFormPage> {
     );
   }
 
-  Widget _buildDateField({required String label, required DateTime? selectedDate, required VoidCallback onTap}) {
+  Widget _buildDateFieldWithController({
+    required String label,
+    required TextEditingController controller,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: AbsorbPointer(
-        child: _buildReadOnlyField(
-          label,
-          selectedDate != null ? "${selectedDate.day} ${_monthName(selectedDate.month)} ${selectedDate.year}" : '',
-        ),
+        child: _buildTextField(label, controller),
       ),
     );
   }

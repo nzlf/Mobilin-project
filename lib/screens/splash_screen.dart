@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'login_page.dart'; // pastikan path sesuai
+import 'login_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -30,21 +30,9 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            RichText(
-              text: const TextSpan(
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                children: [
-                  TextSpan(text: 'Mob'),
-                  WidgetSpan(
-                    child: Icon(Icons.circle, size: 20, color: Colors.white),
-                  ),
-                  TextSpan(text: 'ilin'),
-                ],
-              )
+            Image.asset(
+              'assets/mobilin.png',
+              height: 40,
             ),
             const SizedBox(height: 8),
             const Text(

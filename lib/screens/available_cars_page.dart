@@ -1,209 +1,214 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'car_detail_page.dart';
-import 'package:flutter_application_1/screens/home_page.dart'; // Impor HomePage
+import 'main_navigation.dart';
 
-class AvailableCarsPage extends StatelessWidget {
+class AvailableCarsPage extends StatefulWidget {
   const AvailableCarsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> cars = [
-      {
-        'brand': 'Toyota',
-        'name': 'INNOVA REBORN',
-        'image': 'assets/innova.png',
-        'seat': '8 penumpang',
-        'transmission': 'Manual',
-        'type': 'Hatchback',
-        'fuel': 'Bensin',
-        'price': 'Rp500.000/hari',
-      },
-      {
-        'brand': 'Toyota',
-        'name': 'AGYA New',
-        'image': 'assets/agya.png',
-        'seat': '4 penumpang',
-        'transmission': 'Matic',
-        'type': 'Hatchback',
-        'fuel': 'Bensin',
-        'price': 'Rp250.000/hari',
-      },
-      {
-        'brand': 'Toyota',
-        'name': 'AVANZA NEW',
-        'image': 'assets/avanza.png',
-        'seat': '6 penumpang',
-        'transmission': 'Matic',
-        'type': 'Hatchback',
-        'fuel': 'Bensin',
-        'price': 'Rp350.000/hari',
-      },
-    ];
+  State<AvailableCarsPage> createState() => _AvailableCarsPageState();
+}
 
+class _AvailableCarsPageState extends State<AvailableCarsPage> {
+  List<Map<String, dynamic>> carList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCars();
+  }
+
+  Future<void> fetchCars() async {
+    final snapshot = await FirebaseFirestore.instance.collection('cars').get();
+    final cars = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+
+    setState(() {
+      carList = cars;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const HomePage()),
-                        );
-                      },
-                    ),
-                    RichText(
-                      text: TextSpan(
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
-                        children: [
-                          const TextSpan(text: 'M'),
-                          WidgetSpan(child: Icon(Icons.circle, color: Colors.lightBlue, size: 35)),
-                          const TextSpan(text: 'bilin'),
-                        ],
+            // Header
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.black),
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const MainNavigation(initialIndex: 0),
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                  ],
-                ),
-                Stack(
-                  children: [
-                    const Icon(Icons.notifications_none, size: 28),
-                    Positioned(
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(3),
-                        decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                        child: const Text('6', style: TextStyle(fontSize: 10, color: Colors.white)),
+                      const SizedBox(width: 8),
+                      Image.asset(
+                        'assets/mobilin.png',
+                        height: 40,
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Text('Mobil Tersedia', style: TextStyle(fontWeight: FontWeight.bold)),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(20)),
-                  child: Row(
-                    children: const [
-                      Icon(Icons.location_on, size: 16, color: Colors.grey),
-                      SizedBox(width: 4),
+                    ],
+                  ),
+                  const Row(
+                    children: [
+                      Icon(Icons.location_on_outlined),
                       Text('Yogyakarta'),
                     ],
                   ),
-                )
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            ...cars.map((car) => Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: const [
-                            Icon(Icons.star, color: Colors.lightBlue, size: 16),
-                            SizedBox(width: 4),
-                            Text('4.9/5.0', style: TextStyle(fontWeight: FontWeight.w500)),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Image.asset(car['image'], height: 80, width: 100, fit: BoxFit.contain),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
+
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text('Mobil Tersedia', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // Daftar mobil
+            Expanded(
+              child: carList.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: carList.length,
+                      itemBuilder: (context, index) {
+                        final car = carList[index];
+
+                        final name = car['name'] ?? 'Nama tidak tersedia';
+                        final brand = car['brand'] ?? 'Merek tidak tersedia';
+                        final seat = car['seat']?.toString() ?? '-';
+                        final transmission = car['transmission'] ?? '-';
+                        final fuel = car['fuel'] ?? '-';
+                        final price = car['price'] ?? 'Rp -';
+                        final imagePath = car['image'] ?? '';
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8F2FF),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Row(
+                                children: [
+                                  Icon(Icons.star, color: Colors.blue, size: 16),
+                                  SizedBox(width: 4),
+                                  Text('4.9/5.0'),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(car['brand']),
-                                  Text(car['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  const SizedBox(height: 4),
-                                  Wrap(
-                                    spacing: 10,
-                                    children: [
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(Icons.event_seat, size: 16),
-                                          const SizedBox(width: 4),
-                                          Text(car['seat'])
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(Icons.settings, size: 16),
-                                          const SizedBox(width: 4),
-                                          Text(car['transmission'])
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(Icons.local_gas_station, size: 16),
-                                          const SizedBox(width: 4),
-                                          Text(car['fuel'])
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(car['price'], style: const TextStyle(color: Colors.blue)),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => CarDetailPage(car: car),
-                                            ),
-                                          );
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.lightBlue,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  // Gambar mobil
+                                  imagePath.isNotEmpty
+                                      ? Image.asset(imagePath, width: 100, height: 60, fit: BoxFit.cover)
+                                      : Container(
+                                          width: 100,
+                                          height: 60,
+                                          color: Colors.grey[300],
+                                          child: const Icon(Icons.directions_car, color: Colors.grey),
                                         ),
-                                        child: const Text('Pesan'),
-                                      ),
-                                    ],
+                                  const SizedBox(width: 12),
+
+                                  // Info mobil
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(brand, style: const TextStyle(fontSize: 14)),
+                                        Text(
+                                          name,
+                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 4,
+                                          children: [
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(Icons.people, size: 14),
+                                                const SizedBox(width: 4),
+                                                Text('$seat penumpang', style: const TextStyle(fontSize: 12)),
+                                              ],
+                                            ),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(Icons.settings, size: 14),
+                                                const SizedBox(width: 4),
+                                                Text(transmission, style: const TextStyle(fontSize: 12)),
+                                              ],
+                                            ),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(Icons.local_gas_station, size: 14),
+                                                const SizedBox(width: 4),
+                                                Text(fuel, style: const TextStyle(fontSize: 12)),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(price, style: const TextStyle(color: Colors.blue)),
+                                      ],
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 12),
+
+                                  // Tombol Pesan
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => CarDetailPage(car: car),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.lightBlue,
+                                    ),
+                                    child: const Text(
+                                      'Pesan',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                   ),
                                 ],
                               ),
-                            )
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                ))
+            ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.car_rental), label: 'Pesanan'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
       ),
     );
   }

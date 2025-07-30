@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/screens/main_navigation.dart'; // ✅ path diperbaiki
+import 'package:flutter_application_1/screens/main_navigation.dart';
+import 'package:flutter_application_1/screens/register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,6 +13,52 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool isLoading = false;
+
+  void loginUser() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email dan password harus diisi')),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Jika login berhasil, navigasi ke MainNavigation
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainNavigation()),
+      );
+    } on FirebaseAuthException catch (e) {
+      String message;
+
+      if (e.code == 'user-not-found') {
+        message = 'Pengguna tidak ditemukan.';
+      } else if (e.code == 'wrong-password') {
+        message = 'Password salah.';
+      } else {
+        message = 'Login gagal: ${e.message}';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,37 +71,26 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
-              RichText(
-                textAlign: TextAlign.center,
-                text: const TextSpan(
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Arial',
-                    shadows: [
-                      Shadow(
-                        color: Colors.black,
-                        offset: Offset(1, 1),
-                        blurRadius: 2,
-                      )
-                    ],
-                  ),
-                  children: [
-                    TextSpan(text: 'M', style: TextStyle(color: Colors.black)),
-                    WidgetSpan(
-                      child: Icon(Icons.circle, color: Colors.lightBlue, size: 40),
-                      alignment: PlaceholderAlignment.middle,
-                    ),
-                    TextSpan(text: 'bilin', style: TextStyle(color: Colors.black)),
-                  ],
-                ),
+              Image.asset(
+                'assets/mobilin.png',
+                height: 60,
               ),
               const SizedBox(height: 8),
-              Text('Rent Your Favorite Car', style: TextStyle(color: Colors.grey[700])),
+              Text(
+                'Rent Your Favorite Car',
+                style: TextStyle(color: Colors.grey[700]),
+              ),
               const SizedBox(height: 30),
               const Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Login', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Login', 
+                  style: TextStyle(
+                    fontSize: 18, 
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black
+                  )
+                ),
               ),
               const SizedBox(height: 10),
               TextField(
@@ -76,24 +113,26 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 10),
               const Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Forgot password?', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Forgot password?',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Navigasi ke halaman utama setelah login
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MainNavigation()),
-                    );
-                  },
+                  onPressed: isLoading ? null : loginUser,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 3, 160, 244),
                   ),
-                  child: const Text('Login'),
+                  child: isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                        'Login',
+                        style: TextStyle(color: Colors.white),
+                      ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -103,7 +142,10 @@ class _LoginPageState extends State<LoginPage> {
                   const Text("Don't have an account? "),
                   GestureDetector(
                     onTap: () {
-                      // TODO: arahkan ke halaman register
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const RegisterPage()),
+                      );
                     },
                     child: const Text(
                       'Register',
@@ -113,16 +155,7 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.apple, size: 32),
-                  const SizedBox(width: 20),
-                  const Icon(Icons.facebook, size: 32, color: Colors.blue),
-                  const SizedBox(width: 20),
-                  Image.asset('assets/google.png', height: 30),
-                ],
-              ),
+              Image.asset('assets/google.png', height: 30),
             ],
           ),
         ),

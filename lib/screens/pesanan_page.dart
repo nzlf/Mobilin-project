@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PesananPage extends StatelessWidget {
   const PesananPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -13,23 +17,37 @@ class PesananPage extends StatelessWidget {
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          _buildPesananItem(
-            context,
-            title: 'Honda Brio Satya',
-            status: 'Sedang Berlangsung',
-            tanggal: '28 Juni 2025',
-          ),
-          const SizedBox(height: 12),
-          _buildPesananItem(
-            context,
-            title: 'Toyota Avanza',
-            status: 'Selesai',
-            tanggal: '25 Juni 2025',
-          ),
-        ],
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('rentals')
+            //.where('userId', isEqualTo: user?.uid)
+            .orderBy('createdAt', descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('Belum ada pesanan.'));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, index) {
+              final doc = snapshot.data!.docs[index];
+              final data = doc.data() as Map<String, dynamic>;
+
+              return _buildPesananItem(
+                context,
+                title: data['carName'] ?? 'Nama mobil tidak ada',
+                status: 'Sedang Berlangsung', // Bisa ditambahkan field status di Firestore nanti
+                tanggal: _formatDate(data['startDate']),
+              );
+            },
+          );
+        },
       ),
     );
   }
@@ -38,6 +56,7 @@ class PesananPage extends StatelessWidget {
       {required String title, required String status, required String tanggal}) {
     return Card(
       elevation: 3,
+      margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -77,5 +96,12 @@ class PesananPage extends StatelessWidget {
       default:
         return Colors.grey;
     }
+  }
+
+  String _formatDate(String? isoString) {
+    if (isoString == null) return '-';
+    final date = DateTime.tryParse(isoString);
+    if (date == null) return '-';
+    return '${date.day}-${date.month}-${date.year}';
   }
 }

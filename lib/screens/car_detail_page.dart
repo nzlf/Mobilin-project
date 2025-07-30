@@ -37,15 +37,9 @@ class _CarDetailPageState extends State<CarDetailPage> {
                         Navigator.pop(context);
                       },
                     ),
-                    RichText(
-                      text: const TextSpan(
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
-                        children: [
-                          TextSpan(text: 'Mob'),
-                          WidgetSpan(child: Icon(Icons.circle, color: Colors.lightBlue, size: 20)),
-                          TextSpan(text: 'ilin'),
-                        ],
-                      ),
+                    Image.asset(
+                      'assets/mobilin.png',
+                      height: 40,
                     ),
                   ],
                 ),
@@ -184,7 +178,10 @@ class _CarDetailPageState extends State<CarDetailPage> {
                     backgroundColor: Colors.lightBlue,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: const Text('Pesan Mobil'),
+                  child: const Text(
+                    'Pesan Mobil',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
