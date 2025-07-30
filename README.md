@@ -61,8 +61,7 @@ flutter run
 
 ## 📷 Tampilan Aplikasi
 
-![home](assets/mobilin.png)
-![profile](assets/profile.png)
+![aplikasi](assets/Tampilan aplikasi.png)
 
 ---
 
