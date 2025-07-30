@@ -65,6 +65,5 @@ flutter run
 
 ---
 
-## 📄 Lisensi
 
 Proyek ini dibuat untuk tugas proyek kelompok dalam mata kuliah **Teknologi Mobile – Universitas Ahmad Dahlan**.
