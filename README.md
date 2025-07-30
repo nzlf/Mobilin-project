@@ -61,10 +61,10 @@ flutter run
 
 ## 📷 Tampilan Aplikasi
 
-![aplikasi](assets/Tampilan aplikasi.png)
+![profile](assets/aplikasi.png)
 
 ---
 
 ## 📄 Lisensi
 
-Proyek ini dibuat untuk keperluan pembelajaran dalam mata kuliah **Teknologi Mobile – Universitas Ahmad Dahlan**.
+Proyek ini dibuat untuk tugas proyek kelompok dalam mata kuliah **Teknologi Mobile – Universitas Ahmad Dahlan**.
