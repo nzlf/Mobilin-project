@@ -53,9 +53,9 @@ flutter run
 
 ## 👨‍💻 Anggota Tim
 
-- **Jaki** – Front-End Developer
-- **Zala** – Back-End Developer
-- **Opet** – UI/UX Designer
+- **M Zhaqy Wilson NIM 2300016145** – Front-End Developer
+- **Nazala Furqon NIM 2300016145** – Back-End Developer
+- **Annas Fatihur Rahman 2300016155** – UI/UX Designer
 
 ---
 
